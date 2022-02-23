@@ -69,14 +69,25 @@ class _NotesPageState extends State<NotesPage> {
   );
 
   Widget _buildPanelsList() {
-    return !isLoading ? ExpansionPanelList(
+    return !isLoading && noteItems.isNotEmpty ? ExpansionPanelList(
       expansionCallback: (int index, bool isExpanded) {
         setState(() {
           noteItems[index].isExpanded = !isExpanded;
         });
       },
       children: buildNotes(),
-    ) : const Text('No Notes');
+    ) : const Center(
+          heightFactor: 2,
+          child:
+            Text(
+              'No Notes',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 22,
+              ),
+              textAlign: TextAlign.center,
+            )
+        );
   }
 
   List<ExpansionPanel> buildNotes() => noteItems.map<ExpansionPanel>((noteItem) {

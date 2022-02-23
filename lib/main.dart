@@ -25,6 +25,6 @@ class MyApp extends StatelessWidget {
         elevation: 0,
       ),
     ),
-    home: NotesPage(),
+    home: const NotesPage(),
   );
 }

@@ -29,7 +29,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  sqflite:
+  sqflite_common_ffi:
+  path_provider:
   path:
   intl:
 

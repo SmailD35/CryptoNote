@@ -1,6 +1,9 @@
+import 'dart:io';
 import 'package:path/path.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:crypto_note/model/note.dart';
+import 'package:sqflite_common/sqlite_api.dart';
+import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 class CryptoDatabase {
   static final CryptoDatabase instance = CryptoDatabase._init();
@@ -17,10 +20,18 @@ class CryptoDatabase {
   }
 
   Future<Database> _initDB(String filePath) async {
-    final dbDir = await getDatabasesPath();
-    final dbPath = join(dbDir, filePath);
+    sqfliteFfiInit();
 
-    return await openDatabase(dbPath, version: 1, onCreate: _createDB);
+    var dbFactory = databaseFactoryFfi;
+
+    Directory appDocDir = await getApplicationDocumentsDirectory();
+    String appDocPath = appDocDir.path;
+    final dbPath = join(appDocPath, filePath);
+
+    var db = await dbFactory.openDatabase(dbPath);
+    await _createDB(db);
+
+    return db;
   }
 
   Future close() async {
@@ -29,16 +40,16 @@ class CryptoDatabase {
     db.close();
   }
 
-  Future _createDB(Database db, int version) async {
+  Future _createDB(Database db) async {
     await db.execute('''
-CREATE TABLE $tableName ( 
-  ${NoteFields.id} INTEGER PRIMARY KEY AUTOINCREMENT, 
-  ${NoteFields.address} TEXT NOT NULL,
-  ${NoteFields.comment} TEXT NOT NULL,
-  ${NoteFields.owner} TEXT NOT NULL,
-  ${NoteFields.time} TEXT NOT NULL
-  )
-''');
+    CREATE TABLE IF NOT EXISTS $tableName ( 
+      ${NoteFields.id} INTEGER PRIMARY KEY AUTOINCREMENT, 
+      ${NoteFields.address} TEXT NOT NULL,
+      ${NoteFields.comment} TEXT NOT NULL,
+      ${NoteFields.owner} TEXT NOT NULL,
+      ${NoteFields.time} TEXT NOT NULL
+      )
+    ''');
   }
 
   Future<Note> create(Note note) async {
