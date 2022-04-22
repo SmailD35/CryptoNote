@@ -18,6 +18,10 @@ class _NotesPageState extends State<NotesPage> {
   late List<NoteCardItem> noteItems;
   bool isLoading = false;
 
+  bool isSearchOpen = false;
+  String searchAddress = '';
+  String searchOwner = '';
+
   @override
   void initState() {
     super.initState();
@@ -41,6 +45,15 @@ class _NotesPageState extends State<NotesPage> {
     setState(() => isLoading = false);
   }
 
+  Future searchNotes() async {
+    setState(() => isLoading = true);
+
+    notes = await CryptoDatabase.instance.searchNotes(searchAddress, searchOwner);
+    noteItems = notes.map((note) => NoteCardItem(note)).toList();
+
+    setState(() => isLoading = false);
+  }
+
   @override
   Widget build(BuildContext context) => Scaffold(
     appBar: AppBar(
@@ -48,7 +61,62 @@ class _NotesPageState extends State<NotesPage> {
         'CryptoNote',
         style: TextStyle(fontSize: 24),
       ),
-      actions: const [Icon(Icons.search), SizedBox(width: 12)],
+      actions: <Widget>[
+        IconButton(
+          icon: const Icon(Icons.search),
+          tooltip: 'Search',
+          onPressed: () {
+            setState(() => isSearchOpen = !isSearchOpen);
+          },
+        ),
+        const SizedBox(width: 12),
+      ],
+      bottom: PreferredSize(
+        child: isSearchOpen
+            ?
+              Padding(padding: const EdgeInsets.all(16.0), child: Column(
+                children: [
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Text('Address:', style: TextStyle(color: Colors.white, fontSize: 18),),
+                      const SizedBox(width: 10,),
+                      Expanded(child: TextField(
+                        onChanged: (value) => setState(() => searchAddress = value),
+                        style: const TextStyle(color: Colors.white),
+                      ),),
+                    ],
+                  ),
+                  const SizedBox(height: 10,),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Text('Owner:', style: TextStyle(color: Colors.white, fontSize: 18),),
+                      const SizedBox(width: 10,),
+                      Expanded(child: TextField(
+                        onChanged: (value) => setState(() => searchOwner = value),
+                        style: const TextStyle(color: Colors.white),
+                      ),),
+                    ],
+                  ),
+                  const SizedBox(height: 10,),
+                  SizedBox(
+                      width: 250,
+                      height: 36,
+                      child: ElevatedButton(
+                          onPressed: () => searchNotes(),
+                          child: const Text('Search', style: TextStyle(
+                              fontSize: 16,
+                            ),
+                          )
+                      )
+                  ),
+                ],
+              ),)
+            :
+              Container(),
+        preferredSize: Size.fromHeight(isSearchOpen ? 186 : 0),
+      ),
     ),
     body: SingleChildScrollView(
       child: Container(

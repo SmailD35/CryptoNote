@@ -76,6 +76,72 @@ class CryptoDatabase {
     }
   }
 
+  Future<List<Note>> searchNotes(String address, String owner) async {
+    final db = await instance.database;
+
+    const orderBy = '${NoteFields.time} ASC';
+
+    if (address != '' && owner != '') {
+      final result = await db.query(
+        tableName,
+        columns: NoteFields.values,
+        where: '${NoteFields.address} = ? AND ${NoteFields.owner} = ?',
+        whereArgs: [address, owner],
+        orderBy: orderBy,
+      );
+
+      if (result.isNotEmpty) {
+        return result.map((json) => Note.fromJSON(json)).toList();
+      } else {
+        return [];
+      }
+    }
+
+    if (address != '') {
+      final result = await db.query(
+        tableName,
+        columns: NoteFields.values,
+        where: '${NoteFields.address} = ?',
+        whereArgs: [address],
+        orderBy: orderBy,
+      );
+
+      if (result.isNotEmpty) {
+        return result.map((json) => Note.fromJSON(json)).toList();
+      } else {
+        return [];
+      }
+    }
+
+    if (owner != '') {
+      final result = await db.query(
+        tableName,
+        columns: NoteFields.values,
+        where: '${NoteFields.owner} = ?',
+        whereArgs: [owner],
+        orderBy: orderBy,
+      );
+
+      if (result.isNotEmpty) {
+        return result.map((json) => Note.fromJSON(json)).toList();
+      } else {
+        return [];
+      }
+    }
+
+    if (owner == '' && address == '') {
+      final result = await db.query(tableName, orderBy: orderBy);
+
+      if (result.isNotEmpty) {
+        return result.map((json) => Note.fromJSON(json)).toList();
+      } else {
+        return [];
+      }
+    }
+
+    return [];
+  }
+
   Future<List<Note>> readAllNotes() async {
     final db = await instance.database;
 
