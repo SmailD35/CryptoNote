@@ -164,11 +164,11 @@ class _NotesPageState extends State<NotesPage> {
         return ListTile(
           title: !noteItem.isExpanded
               ?
-                Text(noteItem.note.comment.length > 151
+                Text(noteItem.note.address.length > 151
                     ?
-                      '${noteItem.note.comment.substring(0, 150)}...'
+                      '${noteItem.note.address.substring(0, 150)}...'
                     :
-                      noteItem.note.comment)
+                      noteItem.note.address)
               :
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
